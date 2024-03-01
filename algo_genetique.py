@@ -3,13 +3,13 @@ import math
 
 # Définition des constantes
 DIMENSIONS = 6
-POPULATION_SIZE = 100
+POPULATION_SIZE = 10
 NUM_GENERATIONS = 100
-MUTATION_RATE = 0.1
+MUTATION_RATE = 0.2
 VECTEUR_INITIAL = [10,20,30,40,50,60]
 
 # Fonction pour initialiser une population de vecteurs
-def initialize_population(population_size, base_vector, noise_factor=0.1):
+def initialize_population(population_size, base_vector, noise_factor=1):
     population = []
     for _ in range(population_size):
         new_vector = [coord + random.uniform(-noise_factor, noise_factor) for coord in base_vector]
@@ -32,7 +32,7 @@ def fitness(vector):
 
 # Fonction pour sélectionner des vecteurs en fonction de leur qualité
 def selection(population):
-    return sorted(population, key=fitness)[:POPULATION_SIZE]
+    return sorted(population, key=fitness)
 
 # Fonction pour créer de nouvelles solutions en croisant des vecteurs
 def crossover(parent1, parent2):
@@ -44,7 +44,7 @@ def crossover(parent1, parent2):
 def mutate(vector):
     for i in range(DIMENSIONS):
         if random.random() < MUTATION_RATE:
-            vector[i] = random.uniform(0, 1)
+            vector[i] = random.uniform(10, 60)
     return vector
 
 # Algorithme génétique
