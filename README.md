@@ -1,5 +1,4 @@
-# ProjetDevLogiciel
-Projet de développement logiciel - 4BIM INSA Lyon
+# Projet de développement logiciel - 4BIM INSA Lyon
 
 CriminAI est un logiciel destiné à générer un portrait robot afin de simplifier la tâche de reconnaissance en cas d'aggression.
 Le fonctionnement du logiciel repose sur la génération d'images par le logiciel au travers d'un algorithme d'intelligence artificielle, l'autoencodeur variationnel.
