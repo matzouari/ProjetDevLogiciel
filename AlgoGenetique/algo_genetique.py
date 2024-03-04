@@ -66,7 +66,7 @@ def genetic_algorithm():
 
     # Sélectionner les meilleurs vecteurs
     best_vectors = selection(population)
-    return best_vectors[:4]
+    return best_vectors
 
 # Exécuter l'algorithme génétique
 best_vectors = genetic_algorithm()
