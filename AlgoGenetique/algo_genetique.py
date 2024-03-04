@@ -1,74 +1,59 @@
 import random
 import math
 
-# Définition des constantes
-DIMENSIONS = 6
-POPULATION_SIZE = 10
-NUM_GENERATIONS = 100
-MUTATION_RATE = 0.2
-VECTEUR_INITIAL = [10,20,30,40,50,60]
 
-# Fonction pour initialiser une population de vecteurs
-def initialize_population(population_size, base_vector, noise_factor=1):
-    population = []
-    for _ in range(population_size):
+# Fonction pour initialiser une population de vecteurs avec un bruit à partir d'un vecteur initial
+def create_new_photos(nombre_photos, base_vector, noise_factor=3):
+    """
+    """
+    coordonnees_photos = []
+    for _ in range(nombre_photos):
         new_vector = [coord + random.uniform(-noise_factor, noise_factor) for coord in base_vector]
-        population.append(new_vector)
-    return population
+        coordonnees_photos.append(new_vector)
+    return coordonnees_photos
 
-# Fonction pour évaluer la distance entre deux vecteurs
-def distance(vector1, vector2):
-    sum_squared_diff = sum((v1 - v2) ** 2 for v1, v2 in zip(vector1, vector2))
-    return math.sqrt(sum_squared_diff)
+# Methode 1 : calcule le vecteur de coordonnées des centroides des vecteurs fournis puis génère une population de vecteurs
+def photos_methode_centroide(nombre_photos, vectors):
+    """
+    """
+    if not vectors:
+        return None  # Retourner None si la liste de vecteurs est vide
+    dimensions = len(vectors[0])  # Nombre de dimensions
+    centroid_vector = [0] * dimensions  # Initialiser le vecteur centroïde à zéro
+    num_vectors = len(vectors)  # Nombre de vecteurs
+    for vector in vectors:
+        for i in range(dimensions):
+            centroid_vector[i] += vector[i]  # Ajouter les coordonnées de chaque vecteur
+    centroid_vector = [coord / num_vectors for coord in centroid_vector]  # Calculer la moyenne
 
-# Fonction d'évaluation
-def evaluation_function(vector):
-    target_vector = [0.5] * DIMENSIONS  # Vecteur cible (avec toutes les coordonnées égales à 0.5)
-    return -distance(vector, target_vector)  # On veut maximiser la similarité avec le vecteur cible
+    coords_photos = create_new_photos(nombre_photos, centroid_vector)
+    return coords_photos
 
-# Modification de la fonction fitness pour utiliser la nouvelle fonction d'évaluation
-def fitness(vector):
-    return evaluation_function(vector)
+# Methode 2 : crée un nouveau vecteur composé des coordonnées de tous les vecteurs de manière aléatoire puis génère une population de vecteurs
+def photos_methode_crossover(nombre_photos, vectors):
+    """
+    """
+    new_vector = []
+    for i in range(len(vectors[0])):
+        coord = random.randint(0, len(vectors)-1)
+        new_vector.append(vectors[coord][i])
 
-# Fonction pour sélectionner des vecteurs en fonction de leur qualité
-def selection(population):
-    return sorted(population, key=fitness)
+    coords_photos = create_new_photos(nombre_photos, new_vector)
+    return coords_photos
 
-# Fonction pour créer de nouvelles solutions en croisant des vecteurs
-def crossover(parent1, parent2):
-    midpoint = random.randint(0, DIMENSIONS - 1)
-    child = parent1[:midpoint] + parent2[midpoint:]
-    return child
+# Methode 3 : applique le bruit sur chacun des vecteurs avant le regroupement
+def photos_methode_noise(nombre_photos, vectors):
+    return None
 
-# Fonction pour muter un vecteur
-def mutate(vector):
-    for i in range(DIMENSIONS):
-        if random.random() < MUTATION_RATE:
-            vector[i] = random.uniform(10, 60)
-    return vector
+if __name__ == "__main__":
+    vector_1 = [10,20,30,40,50,60]
+    vector_2 = [7,73,42,901,52,6]
+    vector_3 = [17,74,63,716,893,42]
+    vector_4 = [643,27,10,4,746,123]
+    vector_list = [vector_1,vector_2,vector_3,vector_4]
 
-# Algorithme génétique
-def genetic_algorithm():
-    population = initialize_population(POPULATION_SIZE, VECTEUR_INITIAL)
+    vector_method1 = photos_methode_centroide(10, vector_list)
+    vector_method2 = photos_methode_crossover(10, vector_list)
 
-    for generation in range(NUM_GENERATIONS):
-        population = selection(population)
-        new_population = []
-
-        while len(new_population) < POPULATION_SIZE:
-            parent1 = random.choice(population)
-            parent2 = random.choice(population)
-            child = crossover(parent1, parent2)
-            child = mutate(child)
-            new_population.append(child)
-
-        population = new_population
-
-    # Sélectionner les meilleurs vecteurs
-    best_vectors = selection(population)
-    return best_vectors
-
-# Exécuter l'algorithme génétique
-best_vectors = genetic_algorithm()
-for vector in best_vectors:
-    print(vector)
+    print(vector_method1)
+    print(vector_method2)
