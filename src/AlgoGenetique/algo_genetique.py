@@ -43,7 +43,9 @@ def photos_methode_crossover(nombre_photos, vectors):
 
 # Methode 3 : applique le bruit sur chacun des vecteurs avant le regroupement
 def photos_methode_noise(nombre_photos, vectors):
-    return None
+    """
+    """
+    
 
 if __name__ == "__main__":
     vector_1 = [10,20,30,40,50,60]

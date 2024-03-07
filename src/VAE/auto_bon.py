@@ -60,67 +60,69 @@ class VAE(nn.Module):
         z = self.reparameterize(mu, log_var)
         x_recon = self.decoder(z)
         return x_recon, mu, log_var
+    
 
-# Définir les dimensions
-latent_dim = 64
+if __name__ == "__main__":
+    # Définir les dimensions
+    latent_dim = 64
 
-# Initialiser le modèle
-model = VAE(latent_dim)
+    # Initialiser le modèle
+    model = VAE(latent_dim)
 
-# Définir la fonction de perte et l'optimiseur
-criterion = nn.BCEWithLogitsLoss(reduction='sum')
-optimizer = optim.Adam(model.parameters(), lr=1e-3)
+    # Définir la fonction de perte et l'optimiseur
+    criterion = nn.BCEWithLogitsLoss(reduction='sum')
+    optimizer = optim.Adam(model.parameters(), lr=1e-3)
 
-# Entraînement du modèle
-num_epochs = 200
-for epoch in range(num_epochs):
-    total_loss = 0
-    for batch in data_loader:
-        optimizer.zero_grad()
-        recon_batch, mu, log_var = model(batch)
-        reconstruction_loss = criterion(recon_batch, batch)
-        kl_divergence = -0.5 * torch.sum(1 + log_var - mu.pow(2) - log_var.exp())
-        loss = 50*reconstruction_loss + kl_divergence #pondération à tester
-        loss.backward()
-        optimizer.step()
-        total_loss += loss.item()
-    print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {total_loss/len(data_loader.dataset):.4f}")
+    # Entraînement du modèle
+    num_epochs = 200
+    for epoch in range(num_epochs):
+        total_loss = 0
+        for batch in data_loader:
+            optimizer.zero_grad()
+            recon_batch, mu, log_var = model(batch)
+            reconstruction_loss = criterion(recon_batch, batch)
+            kl_divergence = -0.5 * torch.sum(1 + log_var - mu.pow(2) - log_var.exp())
+            loss = 50*reconstruction_loss + kl_divergence #pondération à tester
+            loss.backward()
+            optimizer.step()
+            total_loss += loss.item()
+        print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {total_loss/len(data_loader.dataset):.4f}")
 
-# Sauvegarder le modèle
-torch.save(model.state_dict(), 'vae_model.pth')
+    # Sauvegarder le modèle
+    torch.save(model.state_dict(), 'vae_model.pth')
 
 
-# Charger le modèle sauvegardé
-model = VAE(latent_dim)
-model.load_state_dict(torch.load('vae_model.pth'))
-model.eval()  # Mettre le modèle en mode évaluation
+    # Charger le modèle sauvegardé
+    model = VAE(latent_dim)
+    model.load_state_dict(torch.load('vae_model.pth'))
+    model.eval()  # Mettre le modèle en mode évaluation
 
-# Prendre un batch d'images d'entrée
-with torch.no_grad():
-    input_batch = next(iter(data_loader))
+    # Prendre un batch d'images d'entrée
+    with torch.no_grad():
+        input_batch = next(iter(data_loader))
 
-# Reconstruire les images à partir du modèle
-recon_batch, _, _ = model(input_batch)
+    # Reconstruire les images à partir du modèle
+    recon_batch, _, _ = model(input_batch)
 
-# Convertir les tenseurs PyTorch en numpy arrays
-input_batch = input_batch.numpy()
-recon_batch = recon_batch.detach().numpy()
+    # Convertir les tenseurs PyTorch en numpy arrays
+    input_batch = input_batch.numpy()
+    recon_batch = recon_batch.detach().numpy()
 
-# Afficher les images d'entrée et les images reconstruites
-n = 10  # Nombre d'images à afficher
-plt.figure(figsize=(20, 4))
-for i in range(n):
-    # Afficher les images d'entrée
-    ax = plt.subplot(2, n, i + 1)
-    plt.imshow(input_batch[i].reshape(64, 64), cmap='gray')
-    plt.title('Image Originale')
-    plt.axis('off')
-    # Afficher les images reconstruites
-    ax = plt.subplot(2, n, i + 1 + n)
-    plt.imshow(recon_batch[i].reshape(64, 64), cmap='gray')
-    plt.title('Image Reconstruite')
-    plt.axis('off')
-plt.show()
+    # Afficher les images d'entrée et les images reconstruites
+    n = 10  # Nombre d'images à afficher
+    plt.figure(figsize=(20, 4))
+    for i in range(n):
+        # Afficher les images d'entrée
+        ax = plt.subplot(2, n, i + 1)
+        plt.imshow(input_batch[i].reshape(64, 64), cmap='gray')
+        plt.title('Image Originale')
+        plt.axis('off')
+        # Afficher les images reconstruites
+        ax = plt.subplot(2, n, i + 1 + n)
+        plt.imshow(recon_batch[i].reshape(64, 64), cmap='gray')
+        plt.title('Image Reconstruite')
+        plt.axis('off')
+    plt.show()
 
 
 
