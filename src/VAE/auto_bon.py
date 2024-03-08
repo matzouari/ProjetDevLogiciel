@@ -64,7 +64,7 @@ class VAE(nn.Module):
 
 if __name__ == "__main__":
     # Définir les dimensions
-    latent_dim = 64
+    latent_dim = 6
 
     # Initialiser le modèle
     model = VAE(latent_dim)
