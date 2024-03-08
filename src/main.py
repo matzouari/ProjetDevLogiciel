@@ -3,7 +3,7 @@ Le fichier où l'on regroupe toutes les méthodes pour produire l'application fi
 """
 
 from AlgoGenetique import algo_genetique
-from VAE import auto_bon
+from VAE import autoencodeur
 import torch
 import torchvision.models as models
 import matplotlib.pyplot as plt
@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 latent_dim = 6
 
 checkpoint = torch.load("/Users/matis/Documents/ECOLE/4A/ProjetDevLogiciel/src/VAE/vae_model.pth")
-autoencoder = auto_bon.VAE(latent_dim)
+autoencoder = autoencodeur.VAE(latent_dim)
 
 # Charge les paramètres dans ton modèle
 autoencoder.load_state_dict(checkpoint)
@@ -30,5 +30,6 @@ generated_image = autoencoder.decoder(latent_coordinates)
 image = generated_image.squeeze().detach().numpy()
 
 print("Dimensions de l'image générée:", image.shape)
-plt.imshow(image)
+plt.imshow(image, cmap='gray')
 plt.show()
+
