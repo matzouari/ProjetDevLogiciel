@@ -160,7 +160,7 @@ plt.show()
 
 # Sauvegarder le modèle
 # Définir le chemin complet du répertoire où vous souhaitez enregistrer le modèle
-save_path = "C:/Users/sutte/OneDrive/Desktop/Développement logiciel/vae_model_celebA_petite_bdd.pth"
+save_path = "/home/csutter/Documents/2023-2024/Développement  logiciel/vae_model_celebA_petite_bdd.pth"
 # Enregistrer le modèle
 torch.save(model.state_dict(), save_path)
 
