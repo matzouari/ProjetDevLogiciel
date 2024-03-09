@@ -39,7 +39,7 @@ class CustomDataset(Dataset):
         return image
 
 # Chemin vers le dossier contenant les images = Chemin où les données CelebA sont extraites
-celeba_data_dir = "C:/Users/sutte/OneDrive/Desktop/Développement logiciel/celeba/img_align_celeba/img_align_celeba"
+celeba_data_dir = "D:/img_align_celeba_short"
 
 # Transformation des images
 transform = transforms.Compose([
@@ -155,7 +155,7 @@ plt.show()
 
 # Sauvegarder le modèle
 # Définir le chemin complet du répertoire où vous souhaitez enregistrer le modèle
-save_path = "C:/Users/sutte/OneDrive/Desktop/Développement logiciel/vae_model_celebA.pth"
+save_path = "/home/csutter/Documents/2023-2024/Développement  logiciel/vae_model_celebA.pth"
 # Enregistrer le modèle
 torch.save(model.state_dict(), save_path)
 
