@@ -3,7 +3,7 @@ import math
 
 
 # Fonction pour initialiser une population de vecteurs avec un bruit à partir d'un vecteur initial
-def create_new_photos(nombre_photos, base_vector, noise_factor=3):
+def create_new_photos(nombre_photos, base_vector, noise_factor):
     """
     """
     coordonnees_photos = []
@@ -13,7 +13,7 @@ def create_new_photos(nombre_photos, base_vector, noise_factor=3):
     return coordonnees_photos
 
 # Methode 1 : calcule le vecteur de coordonnées des centroides des vecteurs fournis puis génère une population de vecteurs
-def photos_methode_centroide(nombre_photos, vectors):
+def photos_methode_centroide(nombre_photos, vectors, noise_factor=3):
     """
     """
     if not vectors:
@@ -26,11 +26,11 @@ def photos_methode_centroide(nombre_photos, vectors):
             centroid_vector[i] += vector[i]  # Ajouter les coordonnées de chaque vecteur
     centroid_vector = [coord / num_vectors for coord in centroid_vector]  # Calculer la moyenne
 
-    coords_photos = create_new_photos(nombre_photos, centroid_vector)
+    coords_photos = create_new_photos(nombre_photos, centroid_vector, noise_factor)
     return coords_photos
 
 # Methode 2 : crée un nouveau vecteur composé des coordonnées de tous les vecteurs de manière aléatoire puis génère une population de vecteurs
-def photos_methode_crossover(nombre_photos, vectors):
+def photos_methode_crossover(nombre_photos, vectors, noise_factor = 3):
     """
     """
     new_vector = []
@@ -38,7 +38,7 @@ def photos_methode_crossover(nombre_photos, vectors):
         coord = random.randint(0, len(vectors)-1)
         new_vector.append(vectors[coord][i])
 
-    coords_photos = create_new_photos(nombre_photos, new_vector)
+    coords_photos = create_new_photos(nombre_photos, new_vector, noise_factor)
     return coords_photos
 
 # Methode 3 : applique le bruit sur chacun des vecteurs avant le regroupement

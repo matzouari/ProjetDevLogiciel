@@ -36,7 +36,7 @@ print("Dimensions de l'image générée:", image.shape)
 plt.imshow(image, cmap='gray')
 plt.show()
 
-new_image_coords = algo_genetique.photos_methode_centroide(4,[image_coords])
+new_image_coords = algo_genetique.photos_methode_crossover(4,[image_coords], 2)
 new_images = []
 n = len(new_image_coords)
 
