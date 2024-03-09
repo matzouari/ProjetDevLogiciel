@@ -92,7 +92,7 @@ if __name__ == "__main__":
     torch.save(model.state_dict(), 'src/VAE/vae_model.pth')
 
 
-    # Charger le modèle sauvegardé
+    """# Charger le modèle sauvegardé
     model = VAE(latent_dim)
     model.load_state_dict(torch.load('vae_model.pth'))
     model.eval()  # Mettre le modèle en mode évaluation
@@ -122,7 +122,7 @@ if __name__ == "__main__":
         plt.imshow(recon_batch[i].reshape(64, 64), cmap='gray')
         plt.title('Image Reconstruite')
         plt.axis('off')
-    plt.show()
+    plt.show()"""
 
 
 

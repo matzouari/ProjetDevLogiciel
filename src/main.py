@@ -13,7 +13,7 @@ import random
 # Supposons que tu aies déjà défini ton autoencodeur comme 'Autoencoder'
 
 # Charge les paramètres enregistrés
-latent_dim = 6
+latent_dim = 64
 
 checkpoint = torch.load("src/VAE/vae_model.pth")
 autoencoder = autoencodeur.VAE(latent_dim)
@@ -25,7 +25,7 @@ autoencoder.load_state_dict(checkpoint)
 decoder_parameters = autoencoder.decoder.parameters()
 
 # Fais quelque chose avec les paramètres du décodeur, par exemple :
-image_coords = [random.uniform(-1, 1) for _ in range(6)]
+image_coords = [random.uniform(-1, 1) for _ in range(latent_dim)]
 print(image_coords)
 latent_coordinates = torch.tensor([image_coords])
 
