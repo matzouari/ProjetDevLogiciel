@@ -64,7 +64,7 @@ class VAE(nn.Module):
 
 if __name__ == "__main__":
     # Définir les dimensions
-    latent_dim = 6
+    latent_dim = 64
 
     # Initialiser le modèle
     model = VAE(latent_dim)
@@ -89,7 +89,7 @@ if __name__ == "__main__":
         print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {total_loss/len(data_loader.dataset):.4f}")
 
     # Sauvegarder le modèle
-    torch.save(model.state_dict(), 'vae_model.pth')
+    torch.save(model.state_dict(), 'src/VAE/vae_model.pth')
 
 
     # Charger le modèle sauvegardé
