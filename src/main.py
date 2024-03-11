@@ -11,11 +11,11 @@ import numpy as np
 import random
 
 # Charge les paramètres enregistrés
-latent_dim = 64
+latent_dim = 128
 
 autoencoder = autoencodeur.VAE(latent_dim)
 
-checkpoint = torch.load("src/VAE/vae_model_celebA.pth")
+checkpoint = torch.load("src/VAE/vae_model_celebA_petite_bdd.pth")
 autoencoder.load_state_dict(checkpoint)
 
 # Maintenant, tu peux accéder aux paramètres de ton décodeur
