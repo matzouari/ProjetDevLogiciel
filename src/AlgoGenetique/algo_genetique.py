@@ -2,6 +2,14 @@ import random
 import math
 import numpy as np
 
+# Fonction pour appliquer du bruit à chaque vecteur
+def add_noise(vector, noise_factor):
+    """
+    Ajoute du bruit à un vecteur en lui ajoutant une petite valeur aléatoire à chaque coordonnée.
+    """
+    noisy_vector = [coord + np.random.normal(0, noise_factor) for coord in vector]
+    return noisy_vector
+
 
 # Fonction pour initialiser une population de vecteurs avec un bruit à partir d'un vecteur initial
 def create_new_photos(nombre_photos, base_vector, noise_factor):
@@ -9,12 +17,12 @@ def create_new_photos(nombre_photos, base_vector, noise_factor):
     """
     coordonnees_photos = []
     for _ in range(nombre_photos):
-        new_vector = [coord + random.uniform(-noise_factor, noise_factor) for coord in base_vector]
+        new_vector = [add_noise(base_vector, noise_factor)]
         coordonnees_photos.append(new_vector)
     return coordonnees_photos
 
 # Methode 1 : calcule le vecteur de coordonnées des centroides des vecteurs fournis puis génère une population de vecteurs
-def photos_methode_centroide(nombre_photos, vectors, noise_factor=3):
+def photos_methode_centroide(nombre_photos, vectors, noise_factor=1):
     """
     """
     if not vectors:
@@ -31,7 +39,7 @@ def photos_methode_centroide(nombre_photos, vectors, noise_factor=3):
     return coords_photos
 
 # Methode 2 : crée un nouveau vecteur composé des coordonnées de tous les vecteurs de manière aléatoire puis génère une population de vecteurs
-def photos_methode_crossover(nombre_photos, vectors, noise_factor = 3):
+def photos_methode_crossover(nombre_photos, vectors, noise_factor=1):
     """
     """
     new_vector = []
@@ -43,16 +51,7 @@ def photos_methode_crossover(nombre_photos, vectors, noise_factor = 3):
     return coords_photos
 
 # Methode 3 : applique le bruit sur chacun des vecteurs avant le regroupement
-# Fonction pour appliquer du bruit à chaque vecteur
-def add_noise(vector, noise_factor=0.1):
-    """
-    Ajoute du bruit à un vecteur en lui ajoutant une petite valeur aléatoire à chaque coordonnée.
-    """
-    noisy_vector = [coord + np.random.normal(0, noise_factor) for coord in vector]
-    return noisy_vector
-
-# Méthode 3 : applique le bruit sur chacun des vecteurs avant le regroupement
-def photos_methode_noise(nombre_photos, vectors, noise_factor=0.1):
+def photos_methode_noise(nombre_photos, vectors, noise_factor=1):
     """
     Applique du bruit à chacun des vecteurs, puis génère une population de nouveaux vecteurs.
     """
