@@ -51,11 +51,11 @@ class VAE(nn.Module):
         return x_recon, mu, log_var
 
 # Charge les paramètres enregistrés
-latent_dim = 128
+latent_dim = 64
 
 autoencoder = VAE(latent_dim)
 
-checkpoint = torch.load("src/VAE/vae_model_celebA_petite_bdd.pth")
+checkpoint = torch.load("src/VAE/vae_trained_model_celebA.pth")
 autoencoder.load_state_dict(checkpoint)
 
 # Maintenant, tu peux accéder aux paramètres de ton décodeur
@@ -63,25 +63,34 @@ decoder_parameters = autoencoder.decoder.parameters()
 
 # Fais quelque chose avec les paramètres du décodeur, par exemple :
 image_coords = [random.uniform(-1, 1) for _ in range(latent_dim)]
-print(image_coords)
+image_coords2 = [random.uniform(-1, 1) for _ in range(latent_dim)]
 latent_coordinates = torch.tensor([image_coords])
+latent_coordinates2 = torch.tensor([image_coords2])
 
 generated_image = autoencoder.decoder(latent_coordinates)
+generated_image2 = autoencoder.decoder(latent_coordinates2)
 image = generated_image.squeeze().detach().numpy()
+image2 = generated_image2.squeeze().detach().numpy()
 
 # Transpose les dimensions pour que les canaux soient le dernier axe
 image = np.clip(image.transpose(1, 2, 0), 0, 1)
+image2 = np.clip(image2.transpose(1, 2, 0), 0, 1)
 
 print("Dimensions de l'image générée:", image.shape)
 plt.imshow(image)
 plt.show()
 
-new_image_coords = algo_genetique.photos_methode_crossover(4,[image_coords], 2)
+print("Dimensions de l'image générée:", image2.shape)
+plt.imshow(image2)
+plt.show()
+
+new_image_coords = algo_genetique.photos_methode_crossover(4,[image_coords,image_coords2], 2)
+print(new_image_coords)
 new_images = []
 n = len(new_image_coords)
 
 for i in range(n):
-    new_latent_coords = torch.tensor([new_image_coords[i]])
+    new_latent_coords = torch.tensor(new_image_coords[i])
     new_gen_image = autoencoder.decoder(new_latent_coords)
     new_images.append(new_gen_image.squeeze().detach().numpy())
     print("Dimensions de l'image générée:", new_gen_image.shape)
