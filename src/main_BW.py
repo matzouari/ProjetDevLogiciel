@@ -3,20 +3,57 @@ Le fichier où l'on regroupe toutes les méthodes pour produire l'application fi
 """
 
 from AlgoGenetique import algo_genetique
-from VAE import autoencodeur
 import torch
+import torch.nn as nn
 import torchvision.models as models
 import matplotlib.pyplot as plt
 import random
 
-# Définis l'architecture de ton autoencodeur (encodeur et décodeur)
-# Supposons que tu aies déjà défini ton autoencodeur comme 'Autoencoder'
+class VAE(nn.Module):
+    def __init__(self, latent_dim):
+        super(VAE, self).__init__()
+        self.encoder = nn.Sequential(
+            nn.Conv2d(1, 32, kernel_size=4, stride=2, padding=1),
+            nn.ReLU(),
+            nn.Conv2d(32, 64, kernel_size=4, stride=2, padding=1),
+            nn.ReLU(),
+            nn.Conv2d(64, 128, kernel_size=4, stride=2, padding=1),
+            nn.ReLU(),
+            nn.Flatten(),
+            nn.Linear(128 * 8 * 8, 256),
+            nn.ReLU(),
+            nn.Linear(256, latent_dim * 2)
+        )
+        self.decoder = nn.Sequential(
+            nn.Linear(latent_dim, 256),
+            nn.ReLU(),
+            nn.Linear(256, 128 * 8 * 8),
+            nn.ReLU(),
+            nn.Unflatten(1, (128, 8, 8)),
+            nn.ConvTranspose2d(128, 64, kernel_size=4, stride=2, padding=1),
+            nn.ReLU(),
+            nn.ConvTranspose2d(64, 32, kernel_size=4, stride=2, padding=1),
+            nn.ReLU(),
+            nn.ConvTranspose2d(32, 1, kernel_size=4, stride=2, padding=1)
+        )
+
+    def reparameterize(self, mu, log_var):
+        std = torch.exp(0.5 * log_var)
+        eps = torch.randn_like(std)
+        return mu + eps * std
+
+    def forward(self, x):
+        z_params = self.encoder(x)
+        mu, log_var = torch.chunk(z_params, 2, dim=-1)
+        z = self.reparameterize(mu, log_var)
+        x_recon = self.decoder(z)
+        return x_recon, mu, log_var
 
 # Charge les paramètres enregistrés
 latent_dim = 64
 
 checkpoint = torch.load("src/VAE/vae_model.pth")
-autoencoder = autoencodeur.VAE(latent_dim)
+autoencoder = VAE(latent_dim)
 
 # Charge les paramètres dans ton modèle
 autoencoder.load_state_dict(checkpoint)
@@ -40,7 +77,7 @@ new_images = []
 n = len(new_image_coords)
 
 for i in range(n):
-    new_latent_coords = torch.tensor([new_image_coords[i]])
+    new_latent_coords = torch.tensor(new_image_coords[i])
     new_gen_image = autoencoder.decoder(new_latent_coords)
     new_images.append(new_gen_image.squeeze().detach().numpy())
 
