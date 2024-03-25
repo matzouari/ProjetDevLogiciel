@@ -55,7 +55,7 @@ latent_dim = 64
 
 autoencoder = VAE(latent_dim)
 
-checkpoint = torch.load("src/VAE/vae_trained_model_celebA.pth")
+checkpoint = torch.load("models/vae_trained_model_celebA.pth")
 autoencoder.load_state_dict(checkpoint)
 
 # Maintenant, tu peux accéder aux paramètres de ton décodeur

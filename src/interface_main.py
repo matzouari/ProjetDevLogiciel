@@ -2,10 +2,12 @@ import tkinter as tk
 from PIL import ImageTk, Image
 
 import torch
+from torchvision import datasets, transforms
+from torch.utils.data import DataLoader, Dataset
 
 from AlgoGenetique import algo_genetique
 from VAE import autoencodeur_celebA as autoencodeur
-from VAE.autoencodeur_celebA import data_loader
+from VAE.autoencodeur_celebA import CustomDataset
 
 import os
 import numpy as np
@@ -233,8 +235,20 @@ def back_to_selection():
 # Définir les dimensions
 latent_dim = 64
 
+celeba_data_dir = "data/img_align_celeba"
+# Transformation des images
+transform = transforms.Compose([
+    transforms.Resize((64, 64)),  # Redimensionner les images à une taille de 64x64 pixels
+    transforms.ToTensor(),  # Convertir les images en tenseurs PyTorch
+])
+# Charger les données à partir du dossier img_align_celeba
+celeba_dataset = CustomDataset(root_dir=celeba_data_dir, transform=transform)
+# Définir un DataLoader pour la gestion des données
+batch_size = 64
+data_loader = DataLoader(celeba_dataset, batch_size=batch_size, shuffle=True)
+
 # Charger le modèle sauvegardé
-checkpoint = torch.load("src/VAE/vae_model.pth")
+checkpoint = torch.load("models/vae_trained_model_celebA.pth")
 autoencoder = autoencodeur.VAE(latent_dim)
 autoencoder.load_state_dict(checkpoint)
 autoencoder.eval()  # Mettre le modèle en mode évaluation

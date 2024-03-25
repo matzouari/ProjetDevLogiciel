@@ -1,2 +1,0 @@
-[console_scripts]
-conda-repo = repo_cli.main:main
