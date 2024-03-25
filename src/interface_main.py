@@ -1,9 +1,34 @@
 import tkinter as tk
 from PIL import ImageTk, Image
-
 import torch
+from torch.utils.data import DataLoader
+import algo_genetique
+import autoencodeur
+from autoencodeur import data_loader
+import torch
+import torchvision.models as models
+import matplotlib.pyplot as plt
+import random
+import os
+import numpy as np
 
-<<<<<<< HEAD:interface_main.py
+# Définir les dimensions
+latent_dim = 64
+
+# Charger le modèle sauvegardé
+checkpoint = torch.load("vae_model.pth")
+autoencoder = autoencodeur.VAE(latent_dim)
+autoencoder.load_state_dict(checkpoint)
+autoencoder.eval()  # Mettre le modèle en mode évaluation
+
+# Charger un batch d'images d'entrée (vous devez avoir des données d'entrée)
+# Supposons que vous ayez un DataLoader nommé 'data_loader'
+# Assurez-vous d'avoir défini 'data_loader' dans ce script ou de le charger à partir d'un autre endroit
+# Créer un dossier pour sauvegarder les images reconstruites
+output_dir = "images_reconstruites"
+if not os.path.exists(output_dir):
+    os.makedirs(output_dir)
+
 # with torch.no_grad():
 #     input_batch = next(iter(data_loader))
 #
@@ -26,14 +51,6 @@ global PHOTOS
 PHOTOS = []
 #print(len(PHOTOS))
 #print(len(IMG_COORDS))
-=======
-from AlgoGenetique import algo_genetique
-from VAE import autoencodeur_celebA as autoencodeur
-from VAE.autoencodeur_celebA import data_loader
-
-import os
-import numpy as np
->>>>>>> 750be73b96706bd66e48e0c7978430e0ce77c6fc:src/interface_main.py
 
 # Fonction appelée lors du clic sur le bouton "Créer un portrait robot"
 def create_portrait():
@@ -108,7 +125,7 @@ def create_portrait():
     # Affichage des boutons "Continuer" et "Terminer"
     button_continue = tk.Button(center_frame, text="Continuer la sélection", command=continue_selection)
     button_continue.pack(side=tk.BOTTOM, padx=60, pady=10)
-    global button_panier
+    #global button_panier
     button_panier = tk.Button(text="Photos sélectionnées", command=photos_selectioned)
     button_panier.place(relx=1.0, rely=0.0, anchor='ne', bordermode='outside', x=-30, y=150)
     button_newfaces = tk.Button(center_frame, text="Individus proposés", command=new_faces)
@@ -117,12 +134,12 @@ def create_portrait():
     #button_finish.pack(side=tk.BOTTOM, padx=60, pady=10)
 
 def photos_selectioned():
+    button_panier.destroy()
     for widget in center_frame.winfo_children():
          widget.destroy()
     label_explication = tk.Label(center_frame, text="Mes photos sélectionnées : ",bg="white",font=("Helvetica", 30))
     label_explication.pack(padx=20,pady=10,fill=tk.X)
 
-<<<<<<< HEAD:interface_main.py
     i=1
     for img in PHOTOS:
         img_path = os.path.join("images_selectionnees", f"photo{i}.jpg")  # Utilisation de f-strings
@@ -171,6 +188,7 @@ def retour():
     button_retour.destroy()
     for widget in center_frame.winfo_children():
          widget.destroy()
+         create_portrait()
     button_panier = tk.Button(text="Photos sélectionnées", command=photos_selectioned)
     button_panier.place(relx=1.0, rely=0.0, anchor='ne', bordermode='outside', x=-30, y=150)
     # Affichage des boutons "Continuer" et "Terminer"
@@ -179,9 +197,6 @@ def retour():
     #button_continue.pack(side=tk.BOTTOM, padx=60, pady=10)
     #button_finish.pack(side=tk.BOTTOM, padx=60, pady=10)
 
-=======
-# Fonction appelée lors du clic sur le bouton "Continuer"
->>>>>>> 750be73b96706bd66e48e0c7978430e0ce77c6fc:src/interface_main.py
 def continue_selection():
     for widget in center_frame.winfo_children():
          widget.destroy()
@@ -204,12 +219,8 @@ def new_faces():
     else :
         for widget in center_frame.winfo_children():
              widget.destroy()
-<<<<<<< HEAD:interface_main.py
         # Fais quelque chose avec les paramètres du décodeur, par exemple :
         image_coords = [recon_batch[1,0,0].flatten(),recon_batch[2,0,0].flatten()]
-=======
-        image_coords = [recon_batch[1,0,0].flatten()]
->>>>>>> 750be73b96706bd66e48e0c7978430e0ce77c6fc:src/interface_main.py
         image_coords = np.array(image_coords)
         latent_coordinates = torch.tensor(image_coords)
         generated_image = autoencoder.decoder(latent_coordinates)
@@ -324,48 +335,113 @@ def finish_selection():
         button_back.pack()
 
 # Fonction appelée lors du clic sur le bouton "Retour"
+# def back_to_selection():
+#     for widget in center_frame.winfo_children():
+#          widget.destroy()
+#     label2_welcome = tk.Label(center_frame, text="Bienvenue dans le créateur de portraits robots !",bg="white",font=("Helvetica", 30))
+#     label2_welcome.pack(padx=20,pady=10,fill=tk.X)
+#     button2_create = tk.Button(center_frame, text="Créer un portrait robot", command=choose_method,foreground="black")#,font=("Helvetica", 15))
+#     button2_create.pack(pady=5)
+#     #create_portrait()
+
+# Fonction appelée lors du clic sur le bouton "Retour"  : c plus le cas, j'ai court circuité le truc pour directement choisir une méthode (toujours la même ou changer) après avoir appuyé sur retour
 def back_to_selection():
     for widget in center_frame.winfo_children():
          widget.destroy()
     label2_welcome = tk.Label(center_frame, text="Bienvenue dans le créateur de portraits robots !",bg="white",font=("Helvetica", 30))
     label2_welcome.pack(padx=20,pady=10,fill=tk.X)
-    button2_create = tk.Button(center_frame, text="Créer un portrait robot", command=create_portrait,foreground="black")#,font=("Helvetica", 15))
+    label2_explanation = tk.Label(center_frame, text=explanation_text, bg="white", font=("Helvetica", 14), justify="left")
+    label2_explanation.pack(padx=20, pady=(0, 20))
+    button2_create = tk.Button(center_frame, text="Créer un portrait robot", command=choose_method,foreground="black")#,font=("Helvetica", 15))
     button2_create.pack(pady=5)
     #create_portrait()
 
-<<<<<<< HEAD:interface_main.py
-def method():
+# def method():
+#     for widget in center_frame.winfo_children():
+#          widget.destroy()
+#     label_explication = tk.Label(center_frame, text="Explications : ",bg="white",font=("Helvetica", 30))
+#     label_explication.pack(padx=20,pady=10,fill=tk.X)
+
+# Fonction pour créer le cadre pour le titre et l'explication
+def create_explanation_frame(method, explanation):
+    frame = tk.Frame(center_frame, bg="white")
+    frame.pack(pady=5, padx=20, fill=tk.X)
+
+    # Titre en gras avec fond bleu foncé
+    title_frame = tk.Frame(frame, bg="#000080", highlightbackground="#000080", highlightthickness=5)
+    title_frame.pack(fill=tk.X)  # Utilisation de pack au lieu de grid
+    title_text = tk.Text(title_frame, height=1, width=160, wrap=tk.WORD, background="#000080", borderwidth=0, fg="white")
+    title_text.tag_configure("bold", font=("Helvetica", 12, "bold"))
+    title_text.insert(tk.END, method + "\n", "bold")
+    title_text.configure(state="disabled")
+    title_text.pack(side="left")
+
+    # Explication avec indentation négative pour aligner les points avec le début de chaque ligne du titre
+    explanation_text = tk.Text(frame, height=8, width=160, wrap=tk.WORD, background="white", borderwidth=0)
+    explanation_text.pack(fill=tk.X, padx=(0, 20))  # Utilisation de pack avec une marge droite
+    explanation = "    " + explanation.replace("\n", "\n    ")  # Ajouter l'indentation négative
+    explanation_text.insert(tk.END, explanation)
+    explanation_text.configure(state="disabled")
+
+    return frame  # Retourner le cadre pour permettre l'ajout de la case à cocher
+
+
+# Définir une fonction pour choisir la méthode
+def choose_method():
+    # Détruire tous les widgets du cadre central
     for widget in center_frame.winfo_children():
-         widget.destroy()
-    label_explication = tk.Label(center_frame, text="Explications : ",bg="white",font=("Helvetica", 30))
-    label_explication.pack(padx=20,pady=10,fill=tk.X)
-=======
-# Définir les dimensions
-latent_dim = 64
+        widget.destroy()
 
-# Charger le modèle sauvegardé
-checkpoint = torch.load("src/VAE/vae_model.pth")
-autoencoder = autoencodeur.VAE(latent_dim)
-autoencoder.load_state_dict(checkpoint)
-autoencoder.eval()  # Mettre le modèle en mode évaluation
+    checkboxes = []  # Liste pour stocker les cases à cocher
 
-# Charger un batch d'images d'entrée (vous devez avoir des données d'entrée)
-# Supposons que vous ayez un DataLoader nommé 'data_loader'
-# Assurez-vous d'avoir défini 'data_loader' dans ce script ou de le charger à partir d'un autre endroit
-# Créer un dossier pour sauvegarder les images reconstruites
-output_dir = "images_reconstruites"
-if not os.path.exists(output_dir):
-    os.makedirs(output_dir)
+    # Afficher les explications de chaque méthode
+    for i, method in enumerate(methods):
+        # Créer le cadre pour le titre et l'explication
+        explanation_frame = create_explanation_frame(method, explanations[method])
 
-# # Supprimer les images après utilisation (facultatif)
-# for i in range(n):
-#     img_path = os.path.join(output_dir, f"reconstructed_image_{i}.jpg")
-#     os.remove(img_path)
->>>>>>> 750be73b96706bd66e48e0c7978430e0ce77c6fc:src/interface_main.py
+        # Créer la case à cocher et l'ajouter à la liste
+        checkbox = tk.Checkbutton(explanation_frame, variable=method_var, onvalue=method, offvalue="", bg="white")
+        checkbox.pack(side="left", padx=(20 if i != 0 else 0))  # Ajouter une marge gauche sauf pour le premier
+        checkboxes.append(checkbox)
+    # Affichage du bouton "Valider"
+    button_continue = tk.Button(center_frame, text="Valider", command=validate_method)
+    button_continue.pack(side=tk.BOTTOM, padx=60, pady=10)
+
+def validate_method():
+    global picked_method  # Déclarer la variable globale
+    # Détruire tous les widgets du cadre central
+    for widget in center_frame.winfo_children():
+        widget.destroy()
+    # Créer une étiquette pour afficher les erreurs
+    error_label = tk.Label(center_frame, text="", font=("Helvetica", 16), bg="white")
+    error_label.pack()
+    selected_method = method_var.get()
+    if selected_method:
+        # Vérifier que seule une méthode a été choisie
+        if selected_method.count(",") == 0:
+            # Commencer la création de portrait robot en fonction de la méthode choisie
+            if selected_method == "Méthode 1":
+                picked_method = algo_genetique.photos_methode_centroide
+                create_portrait()
+            elif selected_method == "Méthode 2":
+                picked_method = algo_genetique.photos_methode_crossover
+                create_portrait()
+            elif selected_method == "Méthode 3":
+                picked_method = algo_genetique.photos_methode_noise
+                create_portrait()
+        else:
+            # Afficher un message d'erreur si plus d'une méthode a été choisie
+            error_label.config(text="Erreur : Veuillez sélectionner une seule méthode.", fg="red")
+    else:
+        # Afficher un message d'erreur si aucune méthode a été choisie
+        error_label.config(text="Erreur : Veuillez sélectionner une méthode.", fg="red")
+        # Redémarrer la sélection de méthode après un court délai
+        center_frame.after(2000, choose_method)
+
 
 # Création de la fenêtre principale
 root = tk.Tk()
-root.title("https://CriminAI.com")
+root.title("https://mon-protrait-robot.com")
 
 # Récupère les dimensions de l'écran
 screen_width = root.winfo_screenwidth()
@@ -400,13 +476,66 @@ label_welcome.pack(padx=20,pady=10,fill=tk.X)
 # Créer un bouton pour créer un portrait robot
 button_create = tk.Button(center_frame, text="Créer un portrait robot", command=create_portrait,foreground="black")#,font=("Helvetica", 15))
 button_create.pack(pady=25)
+button_create.pack_forget()  # Masquer le bouton initialement
 
-button_method = tk.Button(center_frame, text="Méthodes : ", command=method,foreground="black")#,font=("Helvetica", 15))
-button_method.pack(pady=5)
+button_panier = tk.Button(text="Photos sélectionnées", command=photos_selectioned)
+
+#button_method = tk.Button(center_frame, text="Méthodes : ", command=choose_method,foreground="black")#,font=("Helvetica", 15))
+#button_method.pack(pady=5)
 
 
 label2_welcome = tk.Label(center_frame, text="Bienvenue dans le créateur de portraits robots !",bg="white",font=("Helvetica", 30))
 button2_create = tk.Button(center_frame, text="Créer un portrait robot", command=create_portrait,foreground="black")#,font=("Helvetica", 15))
+
+# Ajout des explications sur l'objectif de l'application
+explanation_text = """
+Cette application vous permet de créer des portraits robots en utilisant un algorithme génétique.
+Vous pouvez sélectionner une ou plusieurs photos de personnes, puis notre algorithme génétique va modifier
+les visages pour obtenir un portrait robot qui ressemble le plus possible aux personnes que vous avez choisies.
+Le but est d'obtenir le portrait robot le plus ressemblant possible afin de retrouver un potentiel coupable.
+"""
+
+label_explanation = tk.Label(center_frame, text=explanation_text, bg="white", font=("Helvetica", 14), justify="left")
+label_explanation.pack(padx=20, pady=(0, 20))
+
+
+# Définir les noms des méthodes et leurs explications
+methods = ["Méthode 1", "Méthode 2", "Méthode 3"]
+explanations = {
+    "Méthode 1": """\
+    Méthode 1 : Calcul des coordonnées du centroïde et génération de nouvelles photos.
+        • Cette méthode fonctionne en calculant d'abord le vecteur de coordonnées des centroïdes des vecteurs fournis.
+        • Elle parcourt donc la liste des vecteurs fournis et additionne les coordonnées de chaque vecteur à un vecteur centroïde initialisé à 0.
+        • Ensuite, elle divise chaque coordonnée par le nombre total de vecteurs pour obtenir la moyenne.
+        • Ce vecteur de coordonnées du centroïde représente donc le centre géométrique des vecteurs fournis.
+        • Une fois le vecteur de coordonnées du centroïde calculé, la méthode génère une population de nouveaux vecteurs.
+        • Ces nouveaux vecteurs sont créés autour du centroïde calculé afin de générer des photos similaires mais légèrement différentes.
+        • Utile pour créer une variété de nouvelles photos basées sur un ensemble de photos initiales en conservant des caractères communs.""",
+
+    "Méthode 2": """\
+    Méthode 2 : Génération de nouveaux vecteurs par crossover aléatoire.
+        • Cette méthode fonctionne en créant d'abord un nouveau vecteur composé de coodrdonnées de tous les vecteurs sélectionnés aléatoirement.
+        • Pour chaque coordonnée du nouveau vecteur, la méthode sélectionne aléatoirement une coordonnée parmi celles de tous les vecteurs d'origine.
+        • Une fois le nouveau vecteur composé, la méthode génère une population de nouveaux vecteurs en utilisant ce vecteur comme base.
+        • Ces nouveaux vecteurs sont créés avec des variations aléatoires autour du vecteur initial.
+        • Utile pour créer une variété de nouvelles photos en combinant de manière aléatoire les caractéristiques des photos initiales.""",
+
+    "Méthode 3": """\
+    Méthode 3 : Introduction de bruit dans les vecteurs avant génération.
+        • Cette méthode consiste tout d'abord à appliquer du bruit à chacun des vecteurs fournis.
+        • Pour cela, elle ajoute un bruit aléatoire à chaque coordonnée de chaque vecteur.
+        • Ensuite, elle génère une population de nouveaux vecteurs à partir des vecteurs bruités.
+        • Pour chaque vecteur bruité, la méthode crée un nouveau vecteur en ajoutant un peu de bruit supplémentaire à chaque coordonnée.
+        • Ces nouveaux vecteurs conservent les caractéristiques des vecteurs d'origine mais présentent des variations dues au bruit introduit.
+        • Utile pour créer une variété de photos en introduisant des variations aléatoires mais contrôlées dans les caractéristiques des photos initiales."""
+}
+
+
+# Créer une variable pour stocker la méthode choisie
+method_var = tk.StringVar()
+
+button_method = tk.Button(center_frame, text="Choisir une méthode", command=choose_method,foreground="black")#,font=("Helvetica", 15))
+button_method.pack(pady=5)
 
 # Chargement de l'image du logo
 #logo_image = Image.open("logo.png")  # Remplacez "logo.png" par le chemin de votre fichier logo
@@ -415,6 +544,7 @@ button2_create = tk.Button(center_frame, text="Créer un portrait robot", comman
 # Création d'un label pour afficher le logo
 #logo_label = tk.Label(root, image=logo_photo, bg="white")
 #logo_label.pack(side=tk.RIGHT, padx=10, pady=10, anchor="nw")  # Placer le logo dans le coin en haut à gauche
+
 
 # Lancement de la boucle principale de l'interface graphique
 root.mainloop()
