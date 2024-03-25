@@ -75,8 +75,6 @@ class CustomDataset(Dataset):
             image = self.transform(image)
         return image
 
-
-
 class VAE(nn.Module):
     """
     Implémente un Variational Autoencoder (VAE) pour la génération d'images.
@@ -279,7 +277,7 @@ def visualize_images(model, data_loader):
 
 if __name__ == "__main__":
     ### Chargement des données et autres configurations
-    celeba_data_dir = "/home/csutter/tsclient/D/celeba/img_align_celeba/img_align_celeba" # Chemin vers le dossier contenant les images = Chemin où les données CelebA sont extraites
+    celeba_data_dir = "/Users/matis/Documents/ECOLE/4A/ProjetDevLogiciel/data/img_align_celeba" # Chemin vers le dossier contenant les images = Chemin où les données CelebA sont extraites
     # Transformation des images
     transform = transforms.Compose([
         transforms.Resize((64, 64)),  # Redimensionner les images à une taille de 64x64 pixels
@@ -291,7 +289,7 @@ if __name__ == "__main__":
     batch_size = 64
     data_loader = DataLoader(celeba_dataset, batch_size=batch_size, shuffle=True)
     latent_dim = 64 # Définir les dimensions de l'espace latent
-    num_epochs=1000 # Définir le nombre d'epochs
+    num_epochs=500 # Définir le nombre d'epochs
 
 
     ### Initialisation du modèle VAE, fonction de perte et optimiseur
@@ -306,7 +304,7 @@ if __name__ == "__main__":
 
 
     ### Sauvegarder le modèle entraîné
-    save_path = "/home/csutter/Documents/2023-2024/Développement  logiciel/vae_trained_model_celebA.pth"
+    save_path = "/Users/matis/Documents/ECOLE/4A/ProjetDevLogiciel/data/vae_trained_model_celebA.pth"
     torch.save(trained_model.state_dict(), save_path)
 
 

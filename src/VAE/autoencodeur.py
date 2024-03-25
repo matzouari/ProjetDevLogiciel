@@ -7,20 +7,6 @@ from sklearn.datasets import fetch_olivetti_faces
 import numpy as np
 import matplotlib.pyplot as plt
 
-
-
-# Charger la base de données Olivetti Faces
-data = fetch_olivetti_faces()
-images = data.images
-images = images.reshape(images.shape[0], 1, 64, 64)  # Adapter les images à la forme (channels, height, width)
-
-# Convertir les données en tenseurs PyTorch
-tensor_x = torch.tensor(images, dtype=torch.float32)
-
-# Définir un DataLoader pour la gestion des données
-batch_size = 64
-data_loader = DataLoader(tensor_x, batch_size=batch_size, shuffle=True)
-
 class VAE(nn.Module):
     def __init__(self, latent_dim):
         super(VAE, self).__init__()
@@ -61,14 +47,7 @@ class VAE(nn.Module):
         x_recon = self.decoder(z)
         return x_recon, mu, log_var
     
-
-if __name__ == "__main__":
-    # Définir les dimensions
-    latent_dim = 64
-
-    # Initialiser le modèle
-    model = VAE(latent_dim)
-
+def CreationModele(model, chemin_modele):
     # Définir la fonction de perte et l'optimiseur
     criterion = nn.BCEWithLogitsLoss(reduction='sum')
     optimizer = optim.Adam(model.parameters(), lr=1e-3)
@@ -89,12 +68,11 @@ if __name__ == "__main__":
         print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {total_loss/len(data_loader.dataset):.4f}")
 
     # Sauvegarder le modèle
-    torch.save(model.state_dict(), 'src/VAE/vae_model.pth')
+    torch.save(model.state_dict(), chemin_modele)
 
-
-    """# Charger le modèle sauvegardé
-    model = VAE(latent_dim)
-    model.load_state_dict(torch.load('vae_model.pth'))
+def TestModele(model, latent_dim, chemin_modele):
+    # Charger le modèle sauvegardé
+    model.load_state_dict(torch.load(chemin_modele))
     model.eval()  # Mettre le modèle en mode évaluation
 
     # Prendre un batch d'images d'entrée
@@ -122,8 +100,35 @@ if __name__ == "__main__":
         plt.imshow(recon_batch[i].reshape(64, 64), cmap='gray')
         plt.title('Image Reconstruite')
         plt.axis('off')
-    plt.show()"""
+    plt.show()
 
+    
+
+if __name__ == "__main__":
+    # Charger la base de données Olivetti Faces
+    data = fetch_olivetti_faces()
+    images = data.images
+    images = images.reshape(images.shape[0], 1, 64, 64)  # Adapter les images à la forme (channels, height, width)
+
+    # Convertir les données en tenseurs PyTorch
+    tensor_x = torch.tensor(images, dtype=torch.float32)
+
+    # Définir un DataLoader pour la gestion des données
+    batch_size = 64
+    data_loader = DataLoader(tensor_x, batch_size=batch_size, shuffle=True)
+
+    # Définir les dimensions
+    latent_dim = 64
+
+    # Initialiser le modèle
+    model = VAE(latent_dim)
+    chemin_modele = 'src/VAE/vae_model.pth'
+
+    CreationModele(model, chemin_modele)
+    TestModele(model, latent_dim, chemin_modele)
+
+
+    
 
 
 ## Tester avec plus grosse db (Celeb A)

@@ -77,7 +77,7 @@ new_images = []
 n = len(new_image_coords)
 
 for i in range(n):
-    new_latent_coords = torch.tensor([new_image_coords[i]])
+    new_latent_coords = torch.tensor(new_image_coords[i])
     new_gen_image = autoencoder.decoder(new_latent_coords)
     new_images.append(new_gen_image.squeeze().detach().numpy())
 
