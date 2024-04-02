@@ -20,3 +20,12 @@ Les performances de l'autoencodeur variationnel peuvent être améliorées en aj
 
 ## Sortie :
 L'autoencodeur variationnel fournit en sortie les images reconstruites ainsi que les codes latents correspondants. Ces informations peuvent être utilisées pour sélectionner les images les plus pertinentes pour le logiciel CriminAI.
+
+## Dépendances et Versions :
+- Python : 3.11.5
+- NumPy : 1.24.3
+- PyTorch : 2.2.1+cpu
+- torchvision : 0.17.1+cpu
+- Matplotlib : 3.7.2
+- PIL : 10.0.1
+- wget : 3.2
