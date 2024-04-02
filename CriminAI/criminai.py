@@ -9,16 +9,20 @@ from utils.VAE.autoencodeur_celebA import CustomDataset
 import os
 import numpy as np
 
+import os
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+print(os.getcwd())
+
 # Définir les dimensions
 latent_dim = 64
 
 # Charger le modèle sauvegardé
-checkpoint = torch.load("src/CriminAI/models/best_model.pth")
+checkpoint = torch.load("models/best_model.pth")
 autoencoder = autoencodeur.VAE(latent_dim)
 autoencoder.load_state_dict(checkpoint)
 autoencoder.eval()  # Mettre le modèle en mode évaluation
 
-celeba_data_dir = "src/CriminAI/image_batch" # Chemin vers le dossier contenant les images = Chemin où les données CelebA sont extraites
+celeba_data_dir = "image_batch" # Chemin vers le dossier contenant les images = Chemin où les données CelebA sont extraites
 # Transformation des images
 transform = transforms.Compose([
     transforms.Resize((64, 64)),  # Redimensionner les images à une taille de 64x64 pixels
