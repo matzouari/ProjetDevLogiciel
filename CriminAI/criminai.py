@@ -128,7 +128,6 @@ def create_portrait():
     #button_finish.pack(side=tk.BOTTOM, padx=60, pady=10)
 
 def photos_selectioned():
-    button_panier.destroy()
     for widget in center_frame.winfo_children():
          widget.destroy()
     label_explication = tk.Label(center_frame, text="Mes photos sélectionnées : ",bg="white",font=("Helvetica", 30))
@@ -174,9 +173,6 @@ def photos_selectioned():
     global button_retour
     button_retour = tk.Button(text="Retour", command=retour)
     button_retour.place(relx=1.0, rely=0.0, anchor='ne', bordermode='outside', x=-30, y=150)
-    # Effacer le bouton button_panier
-    if button_panier:
-        button_panier.destroy()
 
 def retour():
     button_retour.destroy()
@@ -396,113 +392,111 @@ def validate_method():
         # Redémarrer la sélection de méthode après un court délai
         center_frame.after(2000, choose_method)
 
+def mainWindow():
+    # Création de la fenêtre principale
+    global root
+    root = tk.Tk()
+    root.title("https://mon-portrait-robot.com")
 
-# Création de la fenêtre principale
-root = tk.Tk()
-root.title("https://mon-portrait-robot.com")
+    # Récupère les dimensions de l'écran
+    screen_width = root.winfo_screenwidth()
+    screen_height = root.winfo_screenheight()
 
-# Récupère les dimensions de l'écran
-screen_width = root.winfo_screenwidth()
-screen_height = root.winfo_screenheight()
+    # Définition de la taille de la fenêtre principale
+    root.geometry(f"{screen_width}x{screen_height}")
+    root.configure(bg="white")
 
-# Définition de la taille de la fenêtre principale
-root.geometry(f"{screen_width}x{screen_height}")
-root.configure(bg="white")
+    # Création d'un cadre en haut de la fenêtre pour le titre
+    global title_frame
+    title_frame = tk.Frame(root,bg="#000080",height=100)
+    title_frame.pack(side=tk.TOP, pady=00, fill=tk.X)
+    title_frame.pack_propagate(0) #pour redéfinir les dimensions et être sur qu'elles soient bien prises en compte
 
-# Création d'un cadre en haut de la fenêtre pour le titre
-title_frame = tk.Frame(root,bg="#000080",height=100)
-title_frame.pack(side=tk.TOP, pady=00, fill=tk.X)
-title_frame.pack_propagate(0) #pour redéfinir les dimensions et être sur qu'elles soient bien prises en compte
+    # Ajouter un titre au cadre
+    label_title = tk.Label(title_frame, text="Créateur de portraits robots", font=("Helvetica", 50), foreground="white", bg="#000080",height=50)
+    label_title.pack()
 
-# Ajouter un titre au cadre
-label_title = tk.Label(title_frame, text="Créateur de portraits robots", font=("Helvetica", 50), foreground="white", bg="#000080",height=50)
-label_title.pack()
+    # Ajout d'un cadre bleu sur le bord droit de l'écran
+    #leftside_frame = tk.Frame(root, bg="#000080", width=200, height=screen_height)
+    #leftside_frame.pack(fill=tk.Y, pady=0, side=tk.LEFT)
+    #leftside_frame.pack_propagate(0)
 
-# Ajout d'un cadre bleu sur le bord droit de l'écran
-#leftside_frame = tk.Frame(root, bg="#000080", width=200, height=screen_height)
-#leftside_frame.pack(fill=tk.Y, pady=0, side=tk.LEFT)
-#leftside_frame.pack_propagate(0)
+    # Création d'un cadre pour la zone centrale
+    global center_frame
+    center_frame = tk.Frame(root,bg="white",bd=5)
+    center_frame.pack(padx=50, pady=50, expand=True)  # Définit l'expansion et le remplissage autour du cadre central
 
-# Création d'un cadre pour la zone centrale
-center_frame = tk.Frame(root,bg="white",bd=5)
-center_frame.pack(padx=50, pady=50, expand=True)  # Définit l'expansion et le remplissage autour du cadre central
+    # Définition des composants de l'interface
+    global label_welcome
+    label_welcome = tk.Label(center_frame, text="Bienvenue dans le créateur de portraits robots !",bg="white",font=("Helvetica", 30), anchor="center")
+    label_welcome.pack(padx=20,pady=10,fill=tk.X)
 
-# Définition des composants de l'interface
-label_welcome = tk.Label(center_frame, text="Bienvenue dans le créateur de portraits robots !",bg="white",font=("Helvetica", 30), anchor="center")
-label_welcome.pack(padx=20,pady=10,fill=tk.X)
+    # Créer un bouton pour créer un portrait robot
+    global button_create
+    button_create = tk.Button(center_frame, text="Créer un portrait robot", command=create_portrait,foreground="black")#,font=("Helvetica", 15))
+    button_create.pack(pady=25)
+    button_create.pack_forget()  # Masquer le bouton initialement
 
-# Créer un bouton pour créer un portrait robot
-button_create = tk.Button(center_frame, text="Créer un portrait robot", command=create_portrait,foreground="black")#,font=("Helvetica", 15))
-button_create.pack(pady=25)
-button_create.pack_forget()  # Masquer le bouton initialement
+    label2_welcome = tk.Label(center_frame, text="Bienvenue dans le créateur de portraits robots !",bg="white",font=("Helvetica", 30))
+    button2_create = tk.Button(center_frame, text="Créer un portrait robot", command=create_portrait,foreground="black")#,font=("Helvetica", 15))
 
-button_panier = tk.Button(text="Photos sélectionnées", command=photos_selectioned)
+    # Ajout des explications sur l'objectif de l'application
+    global explanation_text
+    explanation_text = """
+    Cette application vous permet de créer des portraits robots en utilisant un algorithme génétique.
+    Vous pouvez sélectionner une ou plusieurs photos de personnes, puis notre algorithme génétique va modifier
+    les visages pour obtenir un portrait robot qui ressemble le plus possible aux personnes que vous avez choisies.
+    Le but est d'obtenir le portrait robot le plus ressemblant possible afin de retrouver un potentiel coupable.
+    """
 
-#button_method = tk.Button(center_frame, text="Méthodes : ", command=choose_method,foreground="black")#,font=("Helvetica", 15))
-#button_method.pack(pady=5)
-
-
-label2_welcome = tk.Label(center_frame, text="Bienvenue dans le créateur de portraits robots !",bg="white",font=("Helvetica", 30))
-button2_create = tk.Button(center_frame, text="Créer un portrait robot", command=create_portrait,foreground="black")#,font=("Helvetica", 15))
-
-# Ajout des explications sur l'objectif de l'application
-explanation_text = """
-Cette application vous permet de créer des portraits robots en utilisant un algorithme génétique.
-Vous pouvez sélectionner une ou plusieurs photos de personnes, puis notre algorithme génétique va modifier
-les visages pour obtenir un portrait robot qui ressemble le plus possible aux personnes que vous avez choisies.
-Le but est d'obtenir le portrait robot le plus ressemblant possible afin de retrouver un potentiel coupable.
-"""
-
-label_explanation = tk.Label(center_frame, text=explanation_text, bg="white", font=("Helvetica", 14), justify="left")
-label_explanation.pack(padx=20, pady=(0, 20))
-
-
-# Définir les noms des méthodes et leurs explications
-methods = ["Méthode 1", "Méthode 2", "Méthode 3"]
-explanations = {
-    "Méthode 1": """\
-    Méthode 1 : Calcul des coordonnées du centroïde et génération de nouvelles photos.
-        • Cette méthode fonctionne en calculant d'abord le vecteur de coordonnées des centroïdes des vecteurs fournis.
-        • Elle parcourt donc la liste des vecteurs fournis et additionne les coordonnées de chaque vecteur à un vecteur centroïde initialisé à 0.
-        • Ensuite, elle divise chaque coordonnée par le nombre total de vecteurs pour obtenir la moyenne.
-        • Ce vecteur de coordonnées du centroïde représente donc le centre géométrique des vecteurs fournis.
-        • Une fois le vecteur de coordonnées du centroïde calculé, la méthode génère une population de nouveaux vecteurs.
-        • Ces nouveaux vecteurs sont créés autour du centroïde calculé afin de générer des photos similaires mais légèrement différentes.
-        • Utile pour créer une variété de nouvelles photos basées sur un ensemble de photos initiales en conservant des caractères communs.""",
-
-    "Méthode 2": """\
-    Méthode 2 : Génération de nouveaux vecteurs par crossover aléatoire.
-        • Cette méthode fonctionne en créant d'abord un nouveau vecteur composé de coodrdonnées de tous les vecteurs sélectionnés aléatoirement.
-        • Pour chaque coordonnée du nouveau vecteur, la méthode sélectionne aléatoirement une coordonnée parmi celles de tous les vecteurs d'origine.
-        • Une fois le nouveau vecteur composé, la méthode génère une population de nouveaux vecteurs en utilisant ce vecteur comme base.
-        • Ces nouveaux vecteurs sont créés avec des variations aléatoires autour du vecteur initial.
-        • Utile pour créer une variété de nouvelles photos en combinant de manière aléatoire les caractéristiques des photos initiales.""",
-
-    "Méthode 3": """\
-    Méthode 3 : Introduction de bruit dans les vecteurs avant génération.
-        • Cette méthode consiste tout d'abord à appliquer du bruit à chacun des vecteurs fournis.
-        • Pour cela, elle ajoute un bruit aléatoire à chaque coordonnée de chaque vecteur.
-        • Ensuite, elle génère une population de nouveaux vecteurs à partir des vecteurs bruités.
-        • Pour chaque vecteur bruité, la méthode crée un nouveau vecteur en ajoutant un peu de bruit supplémentaire à chaque coordonnée.
-        • Ces nouveaux vecteurs conservent les caractéristiques des vecteurs d'origine mais présentent des variations dues au bruit introduit.
-        • Utile pour créer une variété de photos en introduisant des variations aléatoires mais contrôlées dans les caractéristiques des photos initiales."""
-}
+    label_explanation = tk.Label(center_frame, text=explanation_text, bg="white", font=("Helvetica", 14), justify="left")
+    label_explanation.pack(padx=20, pady=(0, 20))
 
 
-# Créer une variable pour stocker la méthode choisie
-method_var = tk.StringVar()
+    # Définir les noms des méthodes et leurs explications
+    global methods
+    global explanations
 
-button_method = tk.Button(center_frame, text="Choisir une méthode", command=choose_method,foreground="black")#,font=("Helvetica", 15))
-button_method.pack(pady=5)
+    methods = ["Méthode 1", "Méthode 2", "Méthode 3"]
+    explanations = {
+        "Méthode 1": """\
+        Méthode 1 : Calcul des coordonnées du centroïde et génération de nouvelles photos.
+            • Cette méthode fonctionne en calculant d'abord le vecteur de coordonnées des centroïdes des vecteurs fournis.
+            • Elle parcourt donc la liste des vecteurs fournis et additionne les coordonnées de chaque vecteur à un vecteur centroïde initialisé à 0.
+            • Ensuite, elle divise chaque coordonnée par le nombre total de vecteurs pour obtenir la moyenne.
+            • Ce vecteur de coordonnées du centroïde représente donc le centre géométrique des vecteurs fournis.
+            • Une fois le vecteur de coordonnées du centroïde calculé, la méthode génère une population de nouveaux vecteurs.
+            • Ces nouveaux vecteurs sont créés autour du centroïde calculé afin de générer des photos similaires mais légèrement différentes.
+            • Utile pour créer une variété de nouvelles photos basées sur un ensemble de photos initiales en conservant des caractères communs.""",
 
-# Chargement de l'image du logo
-#logo_image = Image.open("logo.png")  # Remplacez "logo.png" par le chemin de votre fichier logo
-#logo_photo = ImageTk.PhotoImage(logo_image)
+        "Méthode 2": """\
+        Méthode 2 : Génération de nouveaux vecteurs par crossover aléatoire.
+            • Cette méthode fonctionne en créant d'abord un nouveau vecteur composé de coodrdonnées de tous les vecteurs sélectionnés aléatoirement.
+            • Pour chaque coordonnée du nouveau vecteur, la méthode sélectionne aléatoirement une coordonnée parmi celles de tous les vecteurs d'origine.
+            • Une fois le nouveau vecteur composé, la méthode génère une population de nouveaux vecteurs en utilisant ce vecteur comme base.
+            • Ces nouveaux vecteurs sont créés avec des variations aléatoires autour du vecteur initial.
+            • Utile pour créer une variété de nouvelles photos en combinant de manière aléatoire les caractéristiques des photos initiales.""",
 
-# Création d'un label pour afficher le logo
-#logo_label = tk.Label(root, image=logo_photo, bg="white")
-#logo_label.pack(side=tk.RIGHT, padx=10, pady=10, anchor="nw")  # Placer le logo dans le coin en haut à gauche
+        "Méthode 3": """\
+        Méthode 3 : Introduction de bruit dans les vecteurs avant génération.
+            • Cette méthode consiste tout d'abord à appliquer du bruit à chacun des vecteurs fournis.
+            • Pour cela, elle ajoute un bruit aléatoire à chaque coordonnée de chaque vecteur.
+            • Ensuite, elle génère une population de nouveaux vecteurs à partir des vecteurs bruités.
+            • Pour chaque vecteur bruité, la méthode crée un nouveau vecteur en ajoutant un peu de bruit supplémentaire à chaque coordonnée.
+            • Ces nouveaux vecteurs conservent les caractéristiques des vecteurs d'origine mais présentent des variations dues au bruit introduit.
+            • Utile pour créer une variété de photos en introduisant des variations aléatoires mais contrôlées dans les caractéristiques des photos initiales."""
+    }
 
 
-# Lancement de la boucle principale de l'interface graphique
-root.mainloop()
+    # Créer une variable pour stocker la méthode choisie
+    global method_var
+    method_var = tk.StringVar()
+
+    button_method = tk.Button(center_frame, text="Choisir une méthode", command=choose_method,foreground="black")#,font=("Helvetica", 15))
+    button_method.pack(pady=5)
+
+    # Lancement de la boucle principale de l'interface graphique
+    root.mainloop()
+
+if __name__ == "__main__":
+    mainWindow()
