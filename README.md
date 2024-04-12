@@ -14,7 +14,7 @@
 
 ## Comment utiliser CriminAI
 
-    Installation : Cloner ce dépôt GitHub ou télécharger le code source.
+    Installation : Voir INSTALLATION.md
     Configuration : Assurez-vous d'avoir les dépendances nécessaires installées (voir le tutoriel de déploiement contenant la liste des dépendances).
     Lancement : Exécutez le fichier principal criminai.py pour démarrer l'application.
     Utilisation : Suivez les instructions à l'écran pour sélectionner les portraits les plus ressemblants et affiner la génération.
