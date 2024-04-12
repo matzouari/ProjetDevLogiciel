@@ -9,94 +9,15 @@ import torchvision.models as models
 import matplotlib.pyplot as plt
 import numpy as np
 import random
-
-class VAE(nn.Module):
-    """
-    Implémente un Variational Autoencoder (VAE) pour la génération d'images.
-
-    Le VAE est composé d'un encodeur et d'un décodeur, qui apprennent à
-    représenter et à générer des données, respectivement.
-
-    Args:
-        latent_dim (int): La dimension de l'espace latent.
-
-    Attributes:
-        encoder (nn.Sequential): Le réseau de neurones de l'encodeur.
-        decoder (nn.Sequential): Le réseau de neurones du décodeur.
-    """
-
-    def __init__(self, latent_dim: int):
-        """
-        Initialise une instance de VAE avec la dimension de l'espace latent spécifiée.
-
-        Args:
-            latent_dim (int): La dimension de l'espace latent.
-        """
-        super(VAE, self).__init__()
-        self.encoder = nn.Sequential(
-            nn.Conv2d(3, 32, kernel_size=4, stride=2, padding=1),
-            nn.ReLU(),
-            nn.Conv2d(32, 64, kernel_size=4, stride=2, padding=1),
-            nn.ReLU(),
-            nn.Conv2d(64, 128, kernel_size=4, stride=2, padding=1),
-            nn.ReLU(),
-            nn.Flatten(),
-            nn.Linear(128 * 8 * 8, 256),
-            nn.ReLU(),
-            nn.Linear(256, latent_dim * 2)
-        )
-        self.decoder = nn.Sequential(
-            nn.Linear(latent_dim, 256),
-            nn.ReLU(),
-            nn.Linear(256, 128 * 8 * 8),
-            nn.ReLU(),
-            nn.Unflatten(1, (128, 8, 8)),
-            nn.ConvTranspose2d(128, 64, kernel_size=4, stride=2, padding=1),
-            nn.ReLU(),
-            nn.ConvTranspose2d(64, 32, kernel_size=4, stride=2, padding=1),
-            nn.ReLU(),
-            nn.ConvTranspose2d(32, 3, kernel_size=4, stride=2, padding=1),
-        )
-
-    def reparameterize(self, mu: torch.Tensor, log_var: torch.Tensor, variance_scale=0.1) -> torch.Tensor:
-        """
-        Effectue la reparamétrisation nécessaire pour échantillonner dans l'espace latent.
-
-        Args:
-            mu (torch.Tensor): La moyenne de la distribution latente.
-            log_var (torch.Tensor): Le logarithme de la variance de la distribution latente.
-
-        Returns:
-            torch.Tensor: L'échantillon dans l'espace latent.
-        """
-        log_var = log_var*variance_scale
-        std = torch.exp(0.5 * log_var)
-        eps = torch.randn_like(std)
-        return mu + eps * std
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """
-        Passe l'entrée à travers l'encodeur et le décodeur pour la reconstruction.
-
-        Args:
-            x (torch.Tensor): L'image d'entrée.
-
-        Returns:
-            torch.Tensor: L'image reconstruite, la moyenne de la distribution latente
-                et le logarithme de la variance de la distribution latente.
-        """
-        z_params = self.encoder(x)
-        mu, log_var = torch.chunk(z_params, 2, dim=-1)
-        z = self.reparameterize(mu, log_var)
-        x_recon = self.decoder(z)
-        return x_recon, mu, log_var
+from AlgoGenetique import algo_genetique
+from VAE.autoencodeur_celebA_combinaison_loss_fc import VAE
 
 # Charge les paramètres enregistrés
-latent_dim = 64
+latent_dim = 500
 
 autoencoder = VAE(latent_dim)
 
-checkpoint = torch.load("CriminAI/CriminAI/models/celebA_mix_MSE_lossL1.pth")
+checkpoint = torch.load("allModels/model_celebA_mix_MSE_lossL1_3.pth")
 autoencoder.load_state_dict(checkpoint)
 
 # Maintenant, tu peux accéder aux paramètres de ton décodeur

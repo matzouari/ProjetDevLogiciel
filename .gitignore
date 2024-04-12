@@ -3,6 +3,9 @@ data
 *.pyc
 allModels
 doc
-image_batch
 TestVenv
 Tests
+CriminAI.egg-info
+dist
+image_batch
+images_selectionnees

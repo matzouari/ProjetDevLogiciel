@@ -8,6 +8,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
 
+""
+
 # Définir la variable d'environnement KMP_DUPLICATE_LIB_OK
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
 
@@ -69,6 +71,8 @@ class CustomDataset(Dataset):
             image = self.transform(image)
         return image
 
+
+
 class VAE(nn.Module):
     """
     Implémente un Variational Autoencoder (VAE) pour la génération d'images.
@@ -110,12 +114,29 @@ class VAE(nn.Module):
             nn.Linear(256, 128 * 8 * 8),
             nn.ReLU(),
             nn.Unflatten(1, (128, 8, 8)),
+            nn.ReLU(),
             nn.ConvTranspose2d(128, 64, kernel_size=4, stride=2, padding=1),
             nn.ReLU(),
             nn.ConvTranspose2d(64, 32, kernel_size=4, stride=2, padding=1),
             nn.ReLU(),
             nn.ConvTranspose2d(32, 3, kernel_size=4, stride=2, padding=1),
         )
+
+
+
+    # def sampling_without_randomness(self, mu: torch.Tensor, log_var: torch.Tensor) -> torch.Tensor:
+    #     """
+    #     Effectue l'échantillonnage sans aléatoire dans l'espace latent.
+    #
+    #     Args:
+    #         mu (torch.Tensor): La moyenne de la distribution latente.
+    #         log_var (torch.Tensor): Le logarithme de la variance de la distribution latente.
+    #
+    #     Returns:
+    #         torch.Tensor: L'échantillon dans l'espace latent sans ajout de l'aléatoire.
+    #     """
+    #     return mu
+
 
     def reparameterize(self, mu: torch.Tensor, log_var: torch.Tensor, variance_scale=0.1) -> torch.Tensor:
         """
@@ -124,11 +145,11 @@ class VAE(nn.Module):
         Args:
             mu (torch.Tensor): La moyenne de la distribution latente.
             log_var (torch.Tensor): Le logarithme de la variance de la distribution latente.
-
+            variance_scale : La modulation de la variance, multiplie log_var par une valeur supérieure à 1 augmente la variance
         Returns:
             torch.Tensor: L'échantillon dans l'espace latent.
         """
-        log_var = log_var*variance_scale
+        log_var = log_var * variance_scale
         std = torch.exp(0.5 * log_var)
         eps = torch.randn_like(std)
         return mu + eps * std
@@ -152,14 +173,13 @@ class VAE(nn.Module):
 
 
 
-def train_VAE_model(model, data_loader, criterion, optimizer, num_epochs):
+def train_VAE_model(model, data_loader, optimizer, num_epochs):
     """
     Entraîne le modèle VAE.
 
     Args:
         model (nn.Module): Le modèle VAE à entraîner.
         data_loader (DataLoader): Le DataLoader contenant les données d'entraînement.
-        criterion: La fonction de perte utilisée pour l'entraînement.
         optimizer: L'optimiseur utilisé pour la mise à jour des poids du modèle.
         num_epochs (int): Le nombre d'époques pour lesquelles entraîner le modèle. Default is 100.
 
@@ -181,14 +201,15 @@ def train_VAE_model(model, data_loader, criterion, optimizer, num_epochs):
         for batch in data_loader:
             optimizer.zero_grad()
             recon_batch, mu, log_var = model(batch)
-            reconstruction_loss = criterion(recon_batch, batch)
-            kl_divergence = -0.5 * torch.sum(1 + log_var - mu.pow(2) - log_var.exp())
-            loss = 50 * reconstruction_loss + kl_divergence  # Poids à tester
+            loss = combined_loss(batch, recon_batch)
             loss.backward()
             optimizer.step()
 
             total_loss += loss.item()
-            reconstruction_loss_total += reconstruction_loss.item()
+            reconstruction_loss_total += loss.item()  # correction ici
+
+            # Calculer la perte de divergence KL
+            kl_divergence = -0.5 * torch.sum(1 + log_var - mu.pow(2) - log_var.exp())
             kl_loss_total += kl_divergence.item()
 
         # Calculer la perte moyenne par lot
@@ -201,15 +222,9 @@ def train_VAE_model(model, data_loader, criterion, optimizer, num_epochs):
         kl_losses.append(mean_kl_loss)
         total_losses.append(mean_total_loss)
 
-        ### Sauvegarder le modèle entraîné
-        save_path = f"/Users/matis/Documents/ECOLE/4A/ProjetDevLogiciel/models/models_celebA_2/vae_trained_model_celebA_2_epoch{epoch}.pth"
-        torch.save(model.state_dict(), save_path)
+        print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {mean_total_loss:.4f}")
 
-        print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {total_loss/len(data_loader.dataset):.4f}")
-
-    return model, reconstruction_losses, kl_losses, total_losses, save_path
-
-
+    return model, reconstruction_losses, kl_losses, total_losses
 
 def plot_losses_and_parameters(model, reconstruction_losses, kl_losses, total_losses):
     """
@@ -249,57 +264,80 @@ def visualize_images(model, data_loader):
         input_batch = next(iter(data_loader))
 
     # Reconstruire les images à partir du modèle
-    recon_batch, _, _ = model(input_batch)
+    recon_batch, mu, log_var = model(input_batch)
+    # Reconstruire les images à partir du modèle en utilisant l'échantillonnage sans aléatoire
+    #recon_batch_without_randomness = model.sampling_without_randomness(mu, log_var)
 
     # Convertir les tenseurs PyTorch en numpy arrays
     input_batch = input_batch.numpy()
     recon_batch = recon_batch.detach().numpy()
+    #recon_batch_without_randomness = recon_batch_without_randomness.detach().numpy()
+
+
 
     # Afficher les images d'entrée et les images reconstruites
     n = 10  # Nombre d'images à afficher
-    plt.figure(figsize=(20, 4))
+    plt.figure(figsize=(20, 6))
     for i in range(n):
         # Afficher les images d'entrée
-        ax = plt.subplot(2, n, i + 1)
-        plt.imshow(np.clip(input_batch[i].transpose(1, 2, 0), 0, 1))  # Normaliser les valeurs entre 0 et 1
-        plt.title('Image Originale')
+        ax = plt.subplot(3, n, i + 1)
+        plt.imshow(np.clip(input_batch[i].transpose(1, 2, 0), 0, 1))
+        plt.title('Original')
         plt.axis('off')
-        # Afficher les images reconstruites
-        ax = plt.subplot(2, n, i + 1 + n)
-        plt.imshow(np.clip(recon_batch[i].transpose(1, 2, 0), 0, 1))  # Normaliser les valeurs entre 0 et 1
-        plt.title('Image Reconstruite')
+
+        # Afficher les images reconstruites avec et sans aléatoire
+        ax = plt.subplot(3, n, i + 1 + n)
+        plt.imshow(np.clip(recon_batch[i].transpose(1, 2, 0), 0, 1))
+        plt.title('Reconstructed (with randomness)')
         plt.axis('off')
+
+        # ax = plt.subplot(3, n, i + 1 + 2 * n)
+        # plt.imshow(np.clip(recon_batch_without_randomness[i].transpose(1, 2, 0), 0, 1))
+        # plt.title('Reconstructed (without randomness)')
+        # plt.axis('off')
 
     plt.show()
 
 
 
+
+def combined_loss(batch, recon_batch):
+    alpha = 0.3  # Poids pour la perte L1
+    beta = 0.7  # Poids pour la perte MSE
+    loss1 = nn.L1Loss(reduction='sum')
+    loss2 = nn.MSELoss(reduction='sum')
+
+    loss_l1 = loss1(recon_batch, batch)
+    loss_mse = loss2(recon_batch, batch)
+    return alpha * loss_l1 + beta * loss_mse
+
+### Chargement des données et autres configurations
+celeba_data_dir = "src/image_batch" # Chemin vers le dossier contenant les images = Chemin où les données CelebA sont extraites
+# Transformation des images
+transform = transforms.Compose([
+    transforms.Resize((64, 64)),  # Redimensionner les images à une taille de 64x64 pixels
+    transforms.ToTensor(),  # Convertir les images en tenseurs PyTorch
+])
+# Charger les données à partir du dossier img_align_celeba
+celeba_dataset = CustomDataset(root_dir=celeba_data_dir, transform=transform)
+# Définir un DataLoader pour la gestion des données
+batch_size = 64
+data_loader = DataLoader(celeba_dataset, batch_size=batch_size, shuffle=True)
+latent_dim = 500 # Définir les dimensions de l'espace latent
+num_epochs= 3000 # Définir le nombre d'epochs
+
 if __name__ == "__main__":
-    ### Chargement des données et autres configurations
-    celeba_data_dir = "/Users/matis/Documents/ECOLE/4A/ProjetDevLogiciel/data/img_align_celeba" # Chemin vers le dossier contenant les images = Chemin où les données CelebA sont extraites
-    # Transformation des images
-    transform = transforms.Compose([
-        transforms.Resize((64, 64)),  # Redimensionner les images à une taille de 64x64 pixels
-        transforms.ToTensor(),  # Convertir les images en tenseurs PyTorch
-    ])
-    # Charger les données à partir du dossier img_align_celeba
-    celeba_dataset = CustomDataset(root_dir=celeba_data_dir, transform=transform)
-    # Définir un DataLoader pour la gestion des données
-    batch_size = 64
-    data_loader = DataLoader(celeba_dataset, batch_size=batch_size, shuffle=True)
-    latent_dim = 64 # Définir les dimensions de l'espace latent
-    num_epochs=100 # Définir le nombre d'epochs
-
-
     ### Initialisation du modèle VAE, fonction de perte et optimiseur
     model = VAE(latent_dim) # Initialiser le modèle
-    # Définir la fonction de perte et l'optimiseur
-    criterion = nn.MSELoss(reduction='sum')
     optimizer = optim.Adam(model.parameters(), lr=1e-3)
 
-
     ### Entraînement du modèle VAE avec la fonction définie
-    trained_model, reconstruction_losses, kl_losses, total_losses, save_path = train_VAE_model(model, data_loader, criterion, optimizer, num_epochs)
+    trained_model, reconstruction_losses, kl_losses, total_losses = train_VAE_model(model, data_loader, optimizer, num_epochs)
+
+    ### Sauvegarder le modèle entraîné
+    save_path = "models/vae_trained_model_celebA_mix_MSE_lossL1.pth"
+    torch.save(trained_model.state_dict(), save_path)
+
 
     ### Charger le modèle sauvegardé
     model = VAE(latent_dim)

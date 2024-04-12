@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "CriminAI"
+version = "1.0.1"
+requires-python = ">= 3.10"
+authors = [
+  {name = "ZOUARI Matis", email = "matis.zouari@insa-lyon.fr"},
+  {name = "SUTTER Clémence", email = "clemence.sutter@insa-lyon.fr"},
+  {name = "PEREZ Lisa", email = "lisa.perez@insa-lyon.fr"},
+  {name = "ZHONG Zhihan", email = "zhihan.zhong@insa-lyon.fr"},
+]
+description = "CriminAI est un logiciel de génération de portraits robots par IA"
+readme = "README.md"
+license = {file = "LICENSE.txt"}
+classifiers = [
+  "Development Status :: 4 - Beta",
+
+  "Intended Audience :: Developers",
+  "Topic :: Software Development :: Build Tools",
+
+  "Programming Language :: Python :: 3",
+]
+dependencies = [
+    'numpy>=1.11.1',
+    'matplotlib>=3.0.0',
+    'torch',
+    'torchvision',
+    'tk',
+    'pillow',
+    'scikit-learn',
+]
+
+[project.urls]
+Repository = "https://github.com/matzouari/CriminAI"
+
+[project.scripts]
+CriminAI = "CriminAI.interface:mainWindow"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"*" = ["*.pth",]
