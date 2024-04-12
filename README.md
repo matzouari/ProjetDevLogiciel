@@ -25,6 +25,8 @@
     Ce logiciel est en cours de développement et peut contenir des bugs.
     Pour signaler un bug ou demander une fonctionnalité, veuillez ouvrir une issue sur GitHub.
 
+    Cette page GitHub est obsolète. Veuillez consulter la page github.com/matzouari/CriminAI pour la version maintenue du logiciel.
+
 ## Auteurs
 
     Lisa Perez (@perezlisa)
